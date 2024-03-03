@@ -4,17 +4,15 @@ import sys, typing, math
 import avb, avbutils
 from PySide6 import QtWidgets, QtCore, QtGui
 
+APP_NAME:str = "Binman"
 
-
-class BinmanApp(QtWidgets.QApplication  ):
+class BinmanApp(QtWidgets.QApplication):
 	"""Binman"""
 
 	def __init__(self):
 		super().__init__()
 
-		self.setApplicationDisplayName("Binman")
-	
-
+		self.setApplicationDisplayName(APP_NAME)
 
 class DisplayPropertiesPanel(QtWidgets.QWidget):
 	"""Bin display properties"""
@@ -247,7 +245,6 @@ class BinViewItem(QtWidgets.QTreeWidgetItem):
 				data.append("No attributes atom")
 
 		return data
-	
 
 class FrameViewGraph(QtWidgets.QGraphicsView):
 
@@ -339,14 +336,6 @@ class FrameView(QtWidgets.QWidget):
 		self.scene.update()
 		#for item in self.scene.items():
 		#	item.setRect(item.scenePos().x(), item.scenePos().y(), avbutils.THUMB_UNIT_SIZE[0] * scale, avbutils.THUMB_UNIT_SIZE[1] * scale)
-
-
-
-
-
-
-from PySide6 import QtWidgets, QtCore, QtGui
-import avbutils
 
 class BinmanMainWindow(QtWidgets.QMainWindow):
 
@@ -448,7 +437,7 @@ class BinmanMain(QtWidgets.QWidget):
 		print("Opening ", bin_path.absoluteFilePath())
 		with avb.open(bin_path.absoluteFilePath()) as bin_handle:
 			bin = bin_handle.content
-			self.setWindowTitle(bin_path.fileName())
+			self.setWindowFilePath(bin_path.absoluteFilePath())
 			self.new_bin_loaded(bin)
 	
 	@QtCore.Slot()
@@ -459,10 +448,7 @@ class BinmanMain(QtWidgets.QWidget):
 			self.setWindowFilePath("Untitled Bin")
 			self.new_bin_loaded(bin)
 
-	
-
-
-class BinPreviewTree(QtWidgets.QTreeWidget):
+class BinPreviewTree(QtWidgets.QTreeView):
 	"""The bin preview"""
 
 	def __init__(self):
@@ -472,7 +458,6 @@ class BinPreviewTree(QtWidgets.QTreeWidget):
 		self.setAlternatingRowColors(True)
 		self.setSortingEnabled(True)
 		self.clear()
-
 
 class BinmanMenuBar(QtWidgets.QMenuBar):
 
@@ -513,6 +498,5 @@ class BinmanMenuBar(QtWidgets.QMenuBar):
 		self.sig_bin_chosen.emit(bin_path)
 	
 	def choose_save_bin(self):
-
 		bin_path, file_mask = QtWidgets.QFileDialog.getSaveFileName(self, "Save a copy of this bin as...", filter="*.avb")
 		
