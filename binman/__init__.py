@@ -174,20 +174,25 @@ class BinViewPanel(QtWidgets.QWidget):
 		self.setLayout(QtWidgets.QVBoxLayout())
 
 
+		# Probably should be its own widget?
 		self.grp_preset = QtWidgets.QGroupBox("Preset")
-		self.grp_preset.setLayout(QtWidgets.QHBoxLayout())
+		self.grp_preset.setLayout(QtWidgets.QVBoxLayout())
 
 		self.cmb_preset = QtWidgets.QComboBox()
 		self.cmb_preset.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.Maximum))
 		self.cmb_preset.addItem("Default")
 
 		self.btn_save_preset = QtWidgets.QPushButton("+")
+		
+		lay_controls = QtWidgets.QHBoxLayout()
+		lay_controls.addWidget(self.cmb_preset)
+		lay_controls.addWidget(self.btn_save_preset)
 
-		self.grp_preset.layout().addWidget(self.cmb_preset)
-		self.grp_preset.layout().addWidget(self.btn_save_preset)
-
+		#self.grp_preset.layout().addWidget(self.cmb_preset)
+		#self.grp_preset.layout().addWidget(self.btn_save_preset)
+		
+		self.grp_preset.layout().addLayout(lay_controls)
 		self.layout().addWidget(self.grp_preset)
-
 
 		self.tree_columns = QtWidgets.QTreeWidget()
 		self.tree_columns.setHeaderLabels(("#", "Name", "Display Format", "Data Type","Hidden"))
@@ -198,7 +203,22 @@ class BinViewPanel(QtWidgets.QWidget):
 		self.tree_columns.setSelectionMode(QtWidgets.QTreeWidget.SelectionMode.ExtendedSelection)
 		self.tree_columns.sortByColumn(0, QtCore.Qt.SortOrder.AscendingOrder)
 		
-		self.layout().addWidget(self.tree_columns)
+		self.grp_preset.layout().addWidget(self.tree_columns)
+		#self.layout().addWidget(self.tree_columns)
+
+
+		# Probably should be its own widget?
+		self.grp_bin_display = QtWidgets.QGroupBox("Display Items")
+		self.grp_bin_display.setLayout(QtWidgets.QVBoxLayout())
+
+		self.chk_user_placed     = QtWidgets.QCheckBox("Show User-Placed Items")
+		self.chk_reference_clips = QtWidgets.QCheckBox("Show Reference Clips")
+
+		self.grp_bin_display.layout().addWidget(self.chk_user_placed)
+		self.grp_bin_display.layout().addWidget(self.chk_reference_clips)
+
+		self.layout().addWidget(self.grp_bin_display)
+
 
 	def set_bin_columns_list(self, columns:list):
 		self.tree_columns.clear()
@@ -369,6 +389,9 @@ class BinmanMain(QtWidgets.QWidget):
 		self.tree_binitems.model().setSourceModel(self.bin_model)
 
 		self.tree_binitems.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.MinimumExpanding))
+		self.tree_binitems.setAlternatingRowColors(True)
+		self.tree_binitems.setSortingEnabled(True)
+		self.tree_binitems.setIndentation(0)
 		
 		self.tabs_binpreview.addTab(self.tree_binitems, "List View")
 
@@ -421,7 +444,7 @@ class BinmanMain(QtWidgets.QWidget):
 
 			self.panel_binview.set_bin_view_name(bin.view_setting.name)
 			self.panel_binview.set_bin_columns_list(
-				[[str(idx+1), col.get("title"),avbutils.BinColumnFormat(col.get("format")).name.replace("_"," ").title(), str(col.get("type")), str(int(col.get("hidden")))] for idx, col in enumerate(bin.view_setting.columns)]
+				[[str(idx+1), col.get("title"),str(avbutils.BinColumnFormat(col.get("format"))), str(col.get("type")), str(int(col.get("hidden")))] for idx, col in enumerate(bin.view_setting.columns)]
 			)
 
 			self.bin_model.setBin(bin)
