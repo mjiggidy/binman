@@ -168,8 +168,16 @@ class DisplayPropertiesPanel(QtWidgets.QWidget):
 
 class BinViewPanel(QtWidgets.QWidget):
 
+	sig_show_user_placed_changed = QtCore.Signal(bool)
+	sig_show_reference_clips_changed = QtCore.Signal(bool)
+
+	"""Bin display options have been changed"""
+
 	def __init__(self):
 		super().__init__()
+
+		self._show_user_placed = True
+		self._show_reference_clips = True
 
 		self.setLayout(QtWidgets.QVBoxLayout())
 
@@ -212,7 +220,9 @@ class BinViewPanel(QtWidgets.QWidget):
 		self.grp_bin_display.setLayout(QtWidgets.QVBoxLayout())
 
 		self.chk_user_placed     = QtWidgets.QCheckBox("Show User-Placed Items")
+		self.chk_user_placed.stateChanged.connect(self.set_show_user_placed)
 		self.chk_reference_clips = QtWidgets.QCheckBox("Show Reference Clips")
+		self.chk_reference_clips.stateChanged.connect(self.set_show_reference_clips)
 
 		self.grp_bin_display.layout().addWidget(self.chk_user_placed)
 		self.grp_bin_display.layout().addWidget(self.chk_reference_clips)
@@ -228,6 +238,30 @@ class BinViewPanel(QtWidgets.QWidget):
 	def set_bin_view_name(self, name:str):
 		self.cmb_preset.clear()
 		self.cmb_preset.addItem(name)
+	
+	def set_show_user_placed(self, show:bool):
+		if show == self._show_user_placed:
+			return
+		
+		self._show_user_placed = bool(show)
+		print(self.show_user_placed())
+		self.sig_show_user_placed_changed.emit(self.show_user_placed())
+
+	def show_user_placed(self) -> bool:
+		return self._show_user_placed
+	
+	def show_reference_clips(self) -> bool:
+		return self._show_reference_clips
+
+	def set_show_reference_clips(self, show:bool):
+		if show == self._show_reference_clips:
+			return
+		
+		self._show_reference_clips = bool(show)
+		print(self.show_reference_clips())
+		self.sig_show_reference_clips_changed.emit(self.show_reference_clips())
+
+
 
 class BinViewItem(QtWidgets.QTreeWidgetItem):
 
@@ -412,6 +446,9 @@ class BinmanMain(QtWidgets.QWidget):
 
 		self.panel_binview = BinViewPanel()
 
+		self.panel_binview.sig_show_reference_clips_changed.connect(self.filters_changed)
+		self.panel_binview.sig_show_user_placed_changed.connect(self.filters_changed)
+
 		self.tabs.addTab(self.panel_displayproperties, "Appearance")
 		self.tabs.addTab(self.panel_binview, "Bin View")
 
@@ -421,6 +458,12 @@ class BinmanMain(QtWidgets.QWidget):
 		self.layout().addWidget(self.tabs)
 		
 		self.panel_displayproperties.thumb_size_frame_changed.connect(self.frameview.set_view_scale)
+	
+	@QtCore.Slot()
+	def filters_changed(self):
+		self.tree_binitems.model().filters_changed(
+				self.panel_binview.show_user_placed(), self.panel_binview.show_reference_clips()
+			)
 	
 	@QtCore.Slot()
 	def new_bin_loaded(self, bin:avb.bin.Bin):
