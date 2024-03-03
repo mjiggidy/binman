@@ -448,7 +448,7 @@ class BinmanMain(QtWidgets.QWidget):
 			self.setWindowFilePath("Untitled Bin")
 			self.new_bin_loaded(bin)
 
-class BinPreviewTree(QtWidgets.QTreeView):
+class BinPreviewTree(QtWidgets.QTreeWidget):
 	"""The bin preview"""
 
 	def __init__(self):
