@@ -349,6 +349,9 @@ class BinmanMainWindow(QtWidgets.QMainWindow):
 
 		self.centralWidget().load_new_bin()
 
+class BinItemsTree(QtWidgets.QTreeView):
+	"""Bin items"""
+
 class BinmanMain(QtWidgets.QWidget):
 	"""Main window component"""
 
@@ -359,9 +362,15 @@ class BinmanMain(QtWidgets.QWidget):
 
 		self.tabs_binpreview = QtWidgets.QTabWidget()
 
-		self.binpreview = BinPreviewTree()
-		self.binpreview.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.MinimumExpanding))
-		self.tabs_binpreview.addTab(self.binpreview, "List View")
+		self.bin_model = avbutils.binmodel.BinModel()
+
+		self.tree_binitems = BinItemsTree()
+		self.tree_binitems.setModel(avbutils.binmodel.BinModelProxy())
+		self.tree_binitems.model().setSourceModel(self.bin_model)
+
+		self.tree_binitems.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.MinimumExpanding))
+		
+		self.tabs_binpreview.addTab(self.tree_binitems, "List View")
 
 		self.frameview = FrameView()
 		self.tabs_binpreview.addTab(self.frameview, "Frame View")
@@ -415,18 +424,9 @@ class BinmanMain(QtWidgets.QWidget):
 				[[str(idx+1), col.get("title"),avbutils.BinColumnFormat(col.get("format")).name.replace("_"," ").title(), str(col.get("type")), str(int(col.get("hidden")))] for idx, col in enumerate(bin.view_setting.columns)]
 			)
 
-			self.binpreview.clear()
-			self.binpreview.setHeaderLabels(col.get("title") for col in bin.view_setting.columns)
-			[self.binpreview.setColumnHidden(idx, col.get("hidden")) for idx, col in enumerate(bin.view_setting.columns)]
-			self.binpreview.addTopLevelItems(
-				#[BinViewItem(BinViewItem.get_column_data(x.mob)) for x in bin.items if x.user_placed and x.mob in bin.compositionmobs()]
-				[BinViewItem(BinViewItem.get_column_data(x.mob, headers=[col.get("title") for col in bin.view_setting.columns])) for x in bin.items if x.user_placed]
-			)
+			self.bin_model.setBin(bin)
 
-			for item in self.binpreview.findItems("True", QtCore.Qt.MatchFlag.MatchExactly, column=1):
-				item.setHidden(True)
-
-			self.binpreview.resizeColumnToContents(0)
+			self.tree_binitems.resizeColumnToContents(0)
 
 			self.frameview.set_items(bin.items)
 			self.frameview.set_view_scale(bin.mac_image_scale)
@@ -435,29 +435,24 @@ class BinmanMain(QtWidgets.QWidget):
 	@QtCore.Slot()
 	def load_bin(self, bin_path:QtCore.QFileInfo):
 		print("Opening ", bin_path.absoluteFilePath())
-		with avb.open(bin_path.absoluteFilePath()) as bin_handle:
-			bin = bin_handle.content
-			self.setWindowFilePath(bin_path.absoluteFilePath())
-			self.new_bin_loaded(bin)
+
+		try:
+			self.bin_handle.close()
+		except Exception as e:
+			print(e)
+
+		self.bin_handle =avb.open(bin_path.absoluteFilePath())
+		bin = self.bin_handle.content
+		self.setWindowFilePath(bin_path.absoluteFilePath())
+		self.new_bin_loaded(bin)
 	
 	@QtCore.Slot()
 	def load_new_bin(self):
 		print("Creating new bin...")
-		with avb.file.AVBFile() as avb_new:
-			bin = avb_new.content
-			self.setWindowFilePath("Untitled Bin")
-			self.new_bin_loaded(bin)
-
-class BinPreviewTree(QtWidgets.QTreeWidget):
-	"""The bin preview"""
-
-	def __init__(self):
-
-		super().__init__()
-		self.setIndentation(0)
-		self.setAlternatingRowColors(True)
-		self.setSortingEnabled(True)
-		self.clear()
+		self.bin_handle = avb.file.AVBFile()
+		bin = self.bin_handle.content
+		self.setWindowFilePath("Untitled Bin")
+		self.new_bin_loaded(bin)
 
 class BinmanMenuBar(QtWidgets.QMenuBar):
 
