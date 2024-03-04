@@ -37,6 +37,7 @@ class BinmanMain(QtWidgets.QWidget):
 		self.tree_binitems.setAlternatingRowColors(True)
 		self.tree_binitems.setSortingEnabled(True)
 		self.tree_binitems.setIndentation(0)
+		self.tree_binitems.setItemDelegate(avbutils.binmodel.BinItemDisplayDelegate())
 		
 		self.tabs_binpreview.addTab(self.tree_binitems, "List View")
 
@@ -73,8 +74,8 @@ class BinmanMain(QtWidgets.QWidget):
 	@QtCore.Slot()
 	def filters_changed(self):
 		self.tree_binitems.model().filters_changed(
-				self.panel_binview.show_user_placed(), self.panel_binview.show_reference_clips()
-			)
+			self.panel_binview.show_user_placed(), self.panel_binview.show_reference_clips()
+		)
 	
 	@QtCore.Slot()
 	def new_bin_loaded(self, bin:avb.bin.Bin):
