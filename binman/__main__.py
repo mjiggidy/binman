@@ -1,7 +1,7 @@
+import sys
 from . import BinmanApp, BinmanMainWindow
-from PySide6 import QtWidgets
 
-app = BinmanApp()
+app = BinmanApp(sys.argv)
 
 wnd_main = BinmanMainWindow()
 wnd_main.show()
