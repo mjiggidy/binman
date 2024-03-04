@@ -15,8 +15,6 @@ class BinmanMainWindow(QtWidgets.QMainWindow):
 
 		self.setStatusBar(QtWidgets.QStatusBar())
 
-		self.centralWidget().load_new_bin()
-
 class BinmanMain(QtWidgets.QWidget):
 	"""Main window component"""
 
@@ -107,7 +105,7 @@ class BinmanMain(QtWidgets.QWidget):
 				[[str(idx+1), col.get("title"),str(avbutils.BinColumnFormat(col.get("format"))), str(col.get("type")), str(int(col.get("hidden")))] for idx, col in enumerate(bin.view_setting.columns)]
 			)
 
-			self.bin_model.setBin(bin)
+
 
 			self.tree_binitems.resizeColumnToContents(0)
 
@@ -117,6 +115,7 @@ class BinmanMain(QtWidgets.QWidget):
 	
 	@QtCore.Slot()
 	def load_bin(self, bin_path:QtCore.QFileInfo):
+
 		print("Opening ", bin_path.absoluteFilePath())
 
 		try:
@@ -124,8 +123,11 @@ class BinmanMain(QtWidgets.QWidget):
 		except Exception as e:
 			print(e)
 
+
+
 		self.bin_handle =avb.open(bin_path.absoluteFilePath())
 		bin = self.bin_handle.content
+		self.bin_model.setBin(bin)
 		self.setWindowFilePath(bin_path.absoluteFilePath())
 		self.new_bin_loaded(bin)
 	
