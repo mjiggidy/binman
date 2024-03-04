@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+from PySide6 import QtWidgets
+
+from .wdg_appearance_properties import AppearancePropertiesPanel
+from .wdg_binview_properties import BinViewPanel
+from .wdg_frameview import FrameView
+from .wdg_menus import BinmanMenuBar
+from .wdg_bin_listview import BinItemsTree
+from .wnd_main import BinmanMainWindow, BinmanMain
+
+APP_NAME:str = "Binman"
+
+class BinmanApp(QtWidgets.QApplication):
+	"""Binman"""
+
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+
+		self.setApplicationDisplayName(APP_NAME)
