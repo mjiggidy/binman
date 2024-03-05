@@ -128,7 +128,7 @@ class BinmanMain(QtWidgets.QWidget):
 		self.bin_handle =avb.open(bin_path.absoluteFilePath())
 		bin = self.bin_handle.content
 		self.bin_model.setBin(bin)
-		self.setWindowFilePath(bin_path.absoluteFilePath())
+		self.parent().setWindowFilePath(bin_path.absoluteFilePath())
 		self.new_bin_loaded(bin)
 	
 	@QtCore.Slot()
