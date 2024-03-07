@@ -5,15 +5,26 @@ from . import AppearancePropertiesPanel, BinViewPanel, FrameView, BinItemsTree, 
 
 class BinmanMainWindow(QtWidgets.QMainWindow):
 
+	sig_close_app = QtCore.Signal()
+	sig_close_window = QtCore.Signal()
+
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 
 		self.setCentralWidget(BinmanMain())
+		
 		self.setMenuBar(BinmanMenuBar())
 		self.menuBar().sig_make_new_bin.connect(self.centralWidget().load_new_bin)
 		self.menuBar().sig_bin_chosen.connect(self.centralWidget().load_bin)
+		self.menuBar().sig_quit.connect(self.sig_close_app)
+		self.menuBar().sig_close_window.connect(self.close_window)
 
 		self.setStatusBar(QtWidgets.QStatusBar())
+	
+	@QtCore.Slot()
+	def close_window(self):
+		self.close()
+
 
 class BinmanMain(QtWidgets.QWidget):
 	"""Main window component"""

@@ -1,10 +1,13 @@
 import sys
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 
 class BinmanMenuBar(QtWidgets.QMenuBar):
 
 	sig_bin_chosen = QtCore.Signal(QtCore.QFileInfo)
 	sig_make_new_bin = QtCore.Signal()
+
+	sig_close_window = QtCore.Signal()
+	sig_quit = QtCore.Signal()
 
 	def __init__(self):
 		super().__init__()
@@ -20,11 +23,17 @@ class BinmanMenuBar(QtWidgets.QMenuBar):
 		self.sig_make_new_bin.emit()
 		self.act_open = self.mnu_file.addAction("&Open Bin...")
 		self.act_open.triggered.connect(self.choose_new_bin)
+		
 		self.mnu_file.addSeparator()
+		
 		self.act_save = self.mnu_file.addAction("&Save Bin As...")
 		self.act_save.triggered.connect(self.choose_save_bin)
+		
 		self.mnu_file.addSeparator()
-		self.mnu_file.addAction("&Quit")
+		
+		self.act_quit = self.mnu_file.addAction("&Quit")
+		self.act_quit.triggered.connect(self.sig_quit)
+		
 	
 	def choose_new_bin(self):
 

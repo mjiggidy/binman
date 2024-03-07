@@ -5,6 +5,7 @@ from . import BinmanApp, BinmanMainWindow
 app = BinmanApp(sys.argv)
 
 wnd_main = BinmanMainWindow()
+wnd_main.sig_close_app.connect(app.quit)
 wnd_main.show()
 
 if len(sys.argv) > 1:
