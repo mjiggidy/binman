@@ -7,6 +7,7 @@ from .wdg_frameview import FrameView
 from .wdg_menus import BinmanMenuBar
 from .wdg_bin_listview import BinItemsTree
 from .wnd_main import BinmanMainWindow, BinmanMain
+from .wnd_about import BinmanAbout
 
 APP_NAME:str = "Binman"
 

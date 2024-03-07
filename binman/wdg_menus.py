@@ -9,6 +9,8 @@ class BinmanMenuBar(QtWidgets.QMenuBar):
 	sig_close_window = QtCore.Signal()
 	sig_quit = QtCore.Signal()
 
+	sig_show_about = QtCore.Signal()
+
 	def __init__(self):
 		super().__init__()
 
@@ -33,6 +35,10 @@ class BinmanMenuBar(QtWidgets.QMenuBar):
 		
 		self.act_quit = self.mnu_file.addAction("&Quit")
 		self.act_quit.triggered.connect(self.sig_quit)
+
+
+		self.act_about = self.mnu_help.addAction("About Binman...")
+		self.act_about.triggered.connect(self.sig_show_about)
 		
 	
 	def choose_new_bin(self):
