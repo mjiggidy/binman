@@ -5,6 +5,7 @@ class AppearancePropertiesPanel(QtWidgets.QWidget):
 	"""Bin display properties"""
 
 	thumb_size_frame_changed = QtCore.Signal(int)
+	sig_font_changed = QtCore.Signal(QtGui.QFont)
 
 	def __init__(self):
 		super().__init__()
@@ -42,8 +43,10 @@ class AppearancePropertiesPanel(QtWidgets.QWidget):
 
 		self.font_list = QtWidgets.QComboBox()
 		self.font_list.addItems(QtGui.QFontDatabase.families())
+		self.font_list.currentIndexChanged.connect(lambda:self.sig_font_changed.emit(self.user_font()))
 
 		self.font_size = QtWidgets.QSpinBox(minimum=avbutils.FONT_SIZE_RANGE.start, maximum=avbutils.FONT_SIZE_RANGE.stop)
+		self.font_size.valueChanged.connect(lambda:self.sig_font_changed.emit(self.user_font()))
 
 		self.font_layout.addWidget(self.font_list)
 		self.font_layout.addWidget(self.font_size)
@@ -101,6 +104,12 @@ class AppearancePropertiesPanel(QtWidgets.QWidget):
 		
 		#for idx, font in enumerate(QtGui.QFontDatabase.families()):
 		#	print(idx, font)
+	
+	def user_font(self) -> QtGui.QFont:
+		return QtGui.QFont(
+			self.font_list.currentText(),
+			self.font_size.value()
+		)
 	
 	def choose_color(self, color_button:QtWidgets.QPushButton):
 

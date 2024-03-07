@@ -64,6 +64,8 @@ class BinmanMain(QtWidgets.QWidget):
 		self.panel_displayproperties.set_thumb_frame_size(80)
 		self.panel_displayproperties.set_thumb_script_size(80)
 
+		self.panel_displayproperties.sig_font_changed.connect(self.tree_binitems.setFont)
+
 
 		self.panel_binview = BinViewPanel()
 
