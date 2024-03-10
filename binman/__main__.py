@@ -2,8 +2,6 @@ import sys
 from PySide6 import QtCore
 from . import BinmanApp, BinmanMainWindow, BinmanAbout
 
-sys.argv += ['-platform', 'windows:darkmode=1']
-
 app = BinmanApp(sys.argv)
 app.setStyle("fusion")
 
