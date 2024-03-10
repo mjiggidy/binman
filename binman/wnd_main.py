@@ -64,7 +64,9 @@ class BinmanMain(QtWidgets.QWidget):
 		self.panel_displayproperties.set_thumb_frame_size(80)
 		self.panel_displayproperties.set_thumb_script_size(80)
 
-		self.panel_displayproperties.sig_font_changed.connect(self.tree_binitems.setFont)
+		self.panel_displayproperties.sig_font_chosen.connect(self.tree_binitems.setFont)
+
+		self.panel_displayproperties.sig_colors_chosen.connect(self.tree_binitems.setColors)
 
 
 		self.panel_binview = BinViewPanel()
@@ -80,7 +82,7 @@ class BinmanMain(QtWidgets.QWidget):
 
 		self.layout().addWidget(self.tabs)
 		
-		self.panel_displayproperties.thumb_size_frame_changed.connect(self.frameview.set_view_scale)
+		self.panel_displayproperties.thumb_size_frame_chosen.connect(self.frameview.set_view_scale)
 	
 	@QtCore.Slot()
 	def filters_changed(self):
@@ -98,8 +100,8 @@ class BinmanMain(QtWidgets.QWidget):
 			self.panel_displayproperties.set_font_family_index(bin.mac_font)
 			self.panel_displayproperties.set_font_size(bin.mac_font_size)
 			
-			self.panel_displayproperties.set_bg_color(QtGui.QColor(QtGui.QRgba64.fromRgba64(*bin.background_color, 1)))
-			self.panel_displayproperties.set_fg_color(QtGui.QColor(QtGui.QRgba64.fromRgba64(*bin.forground_color, 1)))
+			self.panel_displayproperties.btn_color_bg.setColor(QtGui.QColor(QtGui.QRgba64.fromRgba64(*bin.background_color, 1)))
+			self.panel_displayproperties.btn_color_fg.setColor(QtGui.QColor(QtGui.QRgba64.fromRgba64(*bin.forground_color, 1)))
 
 			display_options = avbutils.BinDisplayOptions.get_options_from_bin(bin)
 			print(display_options)

@@ -1,11 +1,43 @@
 import avbutils
 from PySide6 import QtWidgets, QtCore, QtGui
 
+class ColorPickerButton(QtWidgets.QPushButton):
+	"""A little button you can click and it chooses a color. Isn't that nice?"""
+
+	sig_color_changed = QtCore.Signal(QtGui.QColor)
+	"""A color has been chosen"""
+
+	def __init__(self, color:QtGui.QColor|None=None, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+
+		self.clicked.connect(self.choose_color)
+		self.setColor(color or QtGui.QColor())
+	
+	@QtCore.Slot()
+	def choose_color(self):
+		new_color = QtWidgets.QColorDialog.getColor(initial=self.property("color"))
+		if new_color.isValid():
+			self.setColor(new_color)
+	
+	@QtCore.Slot(QtGui.QColor)
+	def setColor(self, color:QtGui.QColor):
+		"""Set the color of this picker"""
+		self.setProperty("color", color)
+		self.setStyleSheet(f"background-color: {self.color().name(QtGui.QColor.NameFormat.HexRgb)}")
+		self.sig_color_changed.emit(self.color())
+	
+	def color(self) -> QtGui.QColor:
+		"""The current color that has been chosen"""
+		return self.property("color")
+
+
+
 class AppearancePropertiesPanel(QtWidgets.QWidget):
 	"""Bin display properties"""
 
-	thumb_size_frame_changed = QtCore.Signal(int)
-	sig_font_changed = QtCore.Signal(QtGui.QFont)
+	thumb_size_frame_chosen = QtCore.Signal(int)
+	sig_font_chosen = QtCore.Signal(QtGui.QFont)
+	sig_colors_chosen = QtCore.Signal(QtGui.QColor, QtGui.QColor)
 
 	def __init__(self):
 		super().__init__()
@@ -28,7 +60,7 @@ class AppearancePropertiesPanel(QtWidgets.QWidget):
 
 
 		self.thumb_size_frame_slider = QtWidgets.QSlider(minimum=avbutils.THUMB_FRAME_MODE_RANGE.start, maximum=avbutils.THUMB_FRAME_MODE_RANGE.stop, orientation=QtCore.Qt.Orientation.Horizontal)
-		self.thumb_size_frame_slider.valueChanged.connect(self.thumb_size_frame_changed)
+		self.thumb_size_frame_slider.valueChanged.connect(self.thumb_size_frame_chosen)
 		self.grp_display_modes.layout().addRow("Thumbnail Size (Frame Mode):", self.thumb_size_frame_slider)
 
 		self.thumb_size_script_slider = QtWidgets.QSlider(minimum=avbutils.THUMB_SCRIPT_MODE_RANGE.start, maximum=avbutils.THUMB_SCRIPT_MODE_RANGE.stop, orientation=QtCore.Qt.Orientation.Horizontal)
@@ -43,28 +75,26 @@ class AppearancePropertiesPanel(QtWidgets.QWidget):
 
 		self.font_list = QtWidgets.QComboBox()
 		self.font_list.addItems(QtGui.QFontDatabase.families())
-		self.font_list.currentIndexChanged.connect(lambda:self.sig_font_changed.emit(self.user_font()))
+		self.font_list.currentIndexChanged.connect(lambda:self.sig_font_chosen.emit(self.user_font()))
 
 		self.font_size = QtWidgets.QSpinBox(minimum=avbutils.FONT_SIZE_RANGE.start, maximum=avbutils.FONT_SIZE_RANGE.stop)
-		self.font_size.valueChanged.connect(lambda:self.sig_font_changed.emit(self.user_font()))
+		self.font_size.valueChanged.connect(lambda:self.sig_font_chosen.emit(self.user_font()))
 
 		self.font_layout.addWidget(self.font_list)
 		self.font_layout.addWidget(self.font_size)
 		self.grp_font.layout().addRow("Bin Font:", self.font_layout)
+		self.layout().addWidget(self.grp_font)
 
 
-		self.btn_color_bg = QtWidgets.QPushButton()
-		self.btn_color_bg.setProperty("color", QtGui.QColor())
-		self.btn_color_bg.clicked.connect(lambda:self.choose_color(self.btn_color_bg))
+		self.btn_color_bg = ColorPickerButton()
+		self.btn_color_fg = ColorPickerButton()
 
-		self.btn_color_fg = QtWidgets.QPushButton()
-		self.btn_color_fg.setProperty("color", QtGui.QColor())
-		self.btn_color_fg.clicked.connect(lambda:self.choose_color(self.btn_color_fg))
+		self.btn_color_fg.sig_color_changed.connect(lambda:self.sig_colors_chosen.emit(*self.bin_colors()))
+		self.btn_color_bg.sig_color_changed.connect(lambda:self.sig_colors_chosen.emit(*self.bin_colors()))
 
 		self.grp_font.layout().addRow("Foreground Color:", self.btn_color_fg)
 		self.grp_font.layout().addRow("Background Color:", self.btn_color_bg)
 
-		self.layout().addWidget(self.grp_font)
 
 		self.grp_position = QtWidgets.QGroupBox(title="Bin Position && Sizing")
 		self.grp_position.setLayout(QtWidgets.QFormLayout())
@@ -111,22 +141,8 @@ class AppearancePropertiesPanel(QtWidgets.QWidget):
 			self.font_size.value()
 		)
 	
-	def choose_color(self, color_button:QtWidgets.QPushButton):
-
-		new_color = QtWidgets.QColorDialog.getColor(initial=color_button.property("color"))
-		if new_color.isValid():
-			self.set_color(color_button, new_color)
-	
-	def set_color(self, color_button:QtWidgets.QPushButton, color:QtGui.QColor):
-		color_button.setProperty("color", color)
-		color_button.setStyleSheet(f"background-color: {color.name()};")
-	
-	def set_bg_color(self, color:QtGui.QColor):
-		self.set_color(self.btn_color_bg, color)
-
-	def set_fg_color(self, color:QtGui.QColor):
-		self.set_color(self.btn_color_fg, color)
-			
+	def bin_colors(self) -> tuple[QtGui.QColor, QtGui.QColor]:
+		return self.btn_color_fg.color(), self.btn_color_bg.color()
 	
 	def set_mode(self, mode:avbutils.BinDisplayModes):
 		"""Set the current mode"""
