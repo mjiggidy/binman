@@ -23,3 +23,17 @@ class BinItemsTree(QtWidgets.QTreeView):
 
 		print("FG:", fg_color.name(QtGui.QColor.NameFormat.HexRgb))
 		print("BG:", bg_color.name(QtGui.QColor.NameFormat.HexRgb))
+
+class BinHeadersTreeView(QtWidgets.QTreeWidget):
+
+	def __init__(self, *args, **kwargs):
+
+		super().__init__(*args, **kwargs)
+
+		self.setHeaderLabels(("#", "Name", "Display Format", "Data Type","Hidden"))
+		self.setAlternatingRowColors(True)
+		self.setIndentation(0)
+		self.resizeColumnToContents(0)
+		self.setSortingEnabled(True)
+		self.setSelectionMode(QtWidgets.QTreeWidget.SelectionMode.ExtendedSelection)
+		self.sortByColumn(0, QtCore.Qt.SortOrder.AscendingOrder)

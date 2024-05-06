@@ -1,5 +1,6 @@
 import avb, avbutils
 from PySide6 import QtWidgets, QtCore
+from . import BinHeadersTreeView
 
 
 class BinViewPanel(QtWidgets.QWidget):
@@ -38,14 +39,7 @@ class BinViewPanel(QtWidgets.QWidget):
 		self.grp_preset.layout().addLayout(lay_controls)
 		self.layout().addWidget(self.grp_preset)
 
-		self.tree_columns = QtWidgets.QTreeWidget()
-		self.tree_columns.setHeaderLabels(("#", "Name", "Display Format", "Data Type","Hidden"))
-		self.tree_columns.setAlternatingRowColors(True)
-		self.tree_columns.setIndentation(0)
-		self.tree_columns.resizeColumnToContents(0)
-		self.tree_columns.setSortingEnabled(True)
-		self.tree_columns.setSelectionMode(QtWidgets.QTreeWidget.SelectionMode.ExtendedSelection)
-		self.tree_columns.sortByColumn(0, QtCore.Qt.SortOrder.AscendingOrder)
+		self.tree_columns = BinHeadersTreeView()
 		
 		self.grp_preset.layout().addWidget(self.tree_columns)
 		#self.layout().addWidget(self.tree_columns)
