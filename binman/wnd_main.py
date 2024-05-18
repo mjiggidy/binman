@@ -20,6 +20,21 @@ class BinmanMainWindow(QtWidgets.QMainWindow):
 		self.menuBar().sig_close_window.connect(self.close_window)
 
 		self.setStatusBar(QtWidgets.QStatusBar())
+
+
+		#self.setTabPosition(QtCore.Qt.DockWidgetArea.RightDockWidgetArea, QtWidgets.QTabWidget.TabPosition.North)
+		#self.add_tool(AppearancePropertiesPanel(), "Appearance Properties")
+		#self.add_tool(BinViewPanel(), "Bin View")
+	
+	def add_tool(self, widget:QtWidgets.QWidget, title:str|None=None):
+
+		dock_widget = QtWidgets.QDockWidget()
+		dock_widget.setWidget(widget)
+
+		if title:
+			dock_widget.setWindowTitle(title)
+
+		self.addDockWidget(QtCore.Qt.DockWidgetArea.RightDockWidgetArea, dock_widget)
 	
 	@QtCore.Slot()
 	def close_window(self):
@@ -31,10 +46,12 @@ class BinmanMain(QtWidgets.QWidget):
 
 	def __init__(self):
 		super().__init__()
-
+		
 		self.setLayout(QtWidgets.QHBoxLayout())
 
 		self.tabs_binpreview = QtWidgets.QTabWidget()
+		self.tabs_binpreview.setTabsClosable(True)
+		self.tabs_binpreview.setMovable(True)
 
 		self.bin_model = avbutils.binmodel.BinModel()
 
@@ -42,11 +59,7 @@ class BinmanMain(QtWidgets.QWidget):
 		self.tree_binitems.setModel(avbutils.binmodel.BinModelProxy())
 		self.tree_binitems.model().setSourceModel(self.bin_model)
 
-		self.tree_binitems.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.MinimumExpanding, QtWidgets.QSizePolicy.Policy.MinimumExpanding))
-		self.tree_binitems.setAlternatingRowColors(True)
-		self.tree_binitems.setSortingEnabled(True)
-		self.tree_binitems.setIndentation(0)
-		self.tree_binitems.setItemDelegate(avbutils.binmodel.BinItemDisplayDelegate())
+
 		
 		self.tabs_binpreview.addTab(self.tree_binitems, "List View")
 
@@ -57,14 +70,15 @@ class BinmanMain(QtWidgets.QWidget):
 
 		self.tabs = QtWidgets.QTabWidget()
 		self.tabs.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Maximum, QtWidgets.QSizePolicy.Policy.MinimumExpanding))
+		self.tabs.setTabsClosable(True)
+		self.tabs.setMovable(True)
 		
 
 		self.panel_displayproperties = AppearancePropertiesPanel()
-		self.panel_displayproperties.set_mode(avbutils.BinDisplayModes.FRAME)
-		self.panel_displayproperties.set_thumb_frame_size(80)
-		self.panel_displayproperties.set_thumb_script_size(80)
 
-		self.panel_displayproperties.sig_font_changed.connect(self.tree_binitems.setFont)
+		self.panel_displayproperties.sig_font_chosen.connect(self.tree_binitems.setFont)
+
+		self.panel_displayproperties.sig_colors_chosen.connect(self.tree_binitems.setColors)
 
 
 		self.panel_binview = BinViewPanel()
@@ -80,7 +94,7 @@ class BinmanMain(QtWidgets.QWidget):
 
 		self.layout().addWidget(self.tabs)
 		
-		self.panel_displayproperties.thumb_size_frame_changed.connect(self.frameview.set_view_scale)
+		self.panel_displayproperties.thumb_size_frame_chosen.connect(self.frameview.set_view_scale)
 	
 	@QtCore.Slot()
 	def filters_changed(self):
@@ -98,8 +112,8 @@ class BinmanMain(QtWidgets.QWidget):
 			self.panel_displayproperties.set_font_family_index(bin.mac_font)
 			self.panel_displayproperties.set_font_size(bin.mac_font_size)
 			
-			self.panel_displayproperties.set_bg_color(QtGui.QColor(QtGui.QRgba64.fromRgba64(*bin.background_color, 1)))
-			self.panel_displayproperties.set_fg_color(QtGui.QColor(QtGui.QRgba64.fromRgba64(*bin.forground_color, 1)))
+			self.panel_displayproperties.btn_color_bg.setColor(QtGui.QColor(QtGui.QRgba64.fromRgba64(*bin.background_color, 1)))
+			self.panel_displayproperties.btn_color_fg.setColor(QtGui.QColor(QtGui.QRgba64.fromRgba64(*bin.forground_color, 1)))
 
 			display_options = avbutils.BinDisplayOptions.get_options_from_bin(bin)
 			print(display_options)
