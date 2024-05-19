@@ -22,7 +22,7 @@ class BinmanMainWindow(QtWidgets.QMainWindow):
 
 		self.setStatusBar(QtWidgets.QStatusBar())
 
-		self.setGeometry(self.geometry().x(), self.geometry().y(), 1600, 800)
+		self.resize(1600, 800)
 
 
 		#self.setTabPosition(QtCore.Qt.DockWidgetArea.RightDockWidgetArea, QtWidgets.QTabWidget.TabPosition.North)
