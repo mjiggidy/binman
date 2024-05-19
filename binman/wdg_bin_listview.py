@@ -1,5 +1,6 @@
 from PySide6 import QtWidgets, QtCore, QtGui
 import avbutils
+from . import binmodel
 
 class BinItemsTree(QtWidgets.QTreeView):
 	"""Bin items"""
@@ -12,7 +13,7 @@ class BinItemsTree(QtWidgets.QTreeView):
 		self.setSortingEnabled(True)
 		self.setIndentation(0)
 		
-		self.setItemDelegate(avbutils.binmodel.BinItemDisplayDelegate())
+		self.setItemDelegate(binmodel.BinItemDisplayDelegate())
 
 	def setColors(self, fg_color:QtGui.QColor, bg_color:QtGui.QColor):
 

@@ -2,6 +2,7 @@ from PySide6 import QtWidgets, QtCore, QtGui
 import avb, avbutils
 
 from . import AppearancePropertiesPanel, BinViewPanel, FrameView, BinItemsTree, BinmanMenuBar
+from . import binmodel
 
 class BinmanMainWindow(QtWidgets.QMainWindow):
 
@@ -20,6 +21,8 @@ class BinmanMainWindow(QtWidgets.QMainWindow):
 		self.menuBar().sig_close_window.connect(self.close_window)
 
 		self.setStatusBar(QtWidgets.QStatusBar())
+
+		self.setGeometry(self.geometry().x(), self.geometry().y(), 1600, 800)
 
 
 		#self.setTabPosition(QtCore.Qt.DockWidgetArea.RightDockWidgetArea, QtWidgets.QTabWidget.TabPosition.North)
@@ -40,6 +43,12 @@ class BinmanMainWindow(QtWidgets.QMainWindow):
 	def close_window(self):
 		self.close()
 
+	def resizeEvent(self, *args):
+
+		super().resizeEvent(*args)
+		self.setWindowTitle(str(self.size()))
+
+
 
 class BinmanMain(QtWidgets.QWidget):
 	"""Main window component"""
@@ -53,10 +62,10 @@ class BinmanMain(QtWidgets.QWidget):
 		self.tabs_binpreview.setTabsClosable(True)
 		self.tabs_binpreview.setMovable(True)
 
-		self.bin_model = avbutils.binmodel.BinModel()
+		self.bin_model = binmodel.BinModel()
 
 		self.tree_binitems = BinItemsTree()
-		self.tree_binitems.setModel(avbutils.binmodel.BinModelProxy())
+		self.tree_binitems.setModel(binmodel.BinModelProxy())
 		self.tree_binitems.model().setSourceModel(self.bin_model)
 
 
@@ -148,9 +157,9 @@ class BinmanMain(QtWidgets.QWidget):
 		try:
 			self.bin_handle.close()
 		except Exception as e:
-			print(e)
+			print("While closing:", str(e))
 
-
+		print("Opening", str(bin_path))
 
 		self.bin_handle =avb.open(bin_path.absoluteFilePath())
 		bin = self.bin_handle.content
